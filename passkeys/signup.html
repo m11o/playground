@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Authentication API Sign Up</title>
+    <script src='https://cdn.jsdelivr.net/npm/cbor-js@0.1.0/cbor.min.js'></script>
+    <script src="webauthn.js"></script>
+</head>
+<body>
+<h1>Web Authentication API Sign Up</h1>
+
+<a href="index.html">Back</a>
+
+<div>
+  <form id="sign-up">
+    <h2>Sign-up</h2>
+    <label for="sign-up-email">Email:</label><br>
+    <input type="email" id="sign-up-email" name="sign-up-email" autocomplete="email"><br>
+    <button type="submit" id="sign-up-submit">Sign-up</button>
+
+    <hr />
+
+    <h2>Options</h2>
+    <label for="challenge">
+      Challenge :
+      <input type="text" id="challenge" name="challenge">
+    </label><br>
+    <label for="rp-name">
+        RP Name:
+        <input type="text" id="rp-name" name="rp-name">
+    </label><br>
+    <label for="rp-id">
+      RP ID:
+      <input type="text" id="rp-id" name="rp-id">
+    </label><br>
+    <label for="timeout">
+      timeout :
+      <input type="text" id="timeout" name="timeout">
+    </label><br>
+    <label for="attestation">
+      Attestation :
+      <select id="attestation">
+        <option value="none">none</option>
+        <option value="direct">direct</option>
+        <option value="indirect">indirect</option>
+        <option value="enterprise">enterprise</option>
+      </select>
+    </label><br>
+    <p>pubKeyCredParams</p>
+    <label>
+      Credential Params Type: "public-key"
+    </label><br>
+    <label for="cred-params-alg">
+      Credential Params Alg:
+      <input type="text" id="cred-params-alg" name="cred-params-alg">
+    </label><br>
+
+    <p>Exclude Credentials</p>
+    <label for="exclude-credentials-id">
+      Credential ID :
+      <input type="text" id="exclude-credentials-id" name="allow-credential-id">
+    </label><br>
+    <label>
+      Credential Type : "public-key"
+    </label><br>
+    <label for="exclude-credentials-transports">
+      Credential Transports :
+      <input type="text" id="exclude-credentials-transports" name="exclude-credential-transports">
+    </label><br>
+
+    <p>Authenticator Selection</p>
+    <label for="authenticator-selection-authenticator-attachment">
+      Authenticator Attachment :
+      <select id="authenticator-selection-authenticator-attachment">
+        <option value="platform">platform</option>
+        <option value="cross-platform">cross-platform</option>
+      </select>
+    </label><br>
+    <label for="authenticator-selection-resident-key">
+      Resident Key :
+      <select id="authenticator-selection-resident-key">
+        <option value="preferred">preferred</option>
+        <option value="required">required</option>
+        <option value="discouraged">discouraged</option>
+      </select>
+    </label><br>
+    <label for="authenticator-selection-user-verification">
+      User Verification :
+      <select id="authenticator-selection-user-verification">
+        <option value="preferred">preferred</option>
+        <option value="required">required</option>
+        <option value="discouraged">discouraged</option>
+      </select>
+    </label><br>
+
+  </form>
+  <div id="credential">
+    <h2>Registration Credential</h2>
+    <pre></pre>
+  </div>
+</div>
+<script>
+  document.addEventListener("submit", async function(event) {
+    event.preventDefault();
+    const email = document.getElementById('sign-up-email').value.trim();
+    const options = {}
+    const challenge = document.getElementById('challenge').value.trim();
+    if (challenge) {
+      options.challenge = challenge;
+    }
+
+    const rpName = document.getElementById('rp-name').value.trim();
+    if (rpName) {
+      options.rp = { name: rpName };
+    }
+
+    const rpId = document.getElementById('rp-id').value.trim();
+    if (rpId) {
+      options.rp = { id: rpId };
+    }
+
+    const credParamsAlg = document.getElementById('cred-params-alg').value.trim();
+    if (credParamsAlg) {
+      options.pubKeyCredParamsAlg = credParamsAlg;
+    }
+
+    const timeout = document.getElementById('timeout').value.trim();
+    if (timeout) {
+      options.timeout = timeout;
+    }
+
+    const attestation = document.getElementById('attestation').value.trim();
+    if (attestation) {
+      options.attestation = attestation;
+    }
+
+    const excludeCredentialsId = document.getElementById('exclude-credentials-id').value.trim();
+    const excludeCredentialsTransports = document.getElementById('exclude-credentials-transports').value.trim();
+    if (excludeCredentialsId) {
+      const excludeCredentialOption = { id: excludeCredentialsId, type: "public-key" };
+      if (excludeCredentialsTransports) {
+        excludeCredentialOption.transports = excludeCredentialsTransports;
+      }
+      options.excludeCredentials = [excludeCredentialOption];
+    }
+
+    const authenticatorSelectionAuthenticatorAttachment = document.getElementById('authenticator-selection-authenticator-attachment').value.trim();
+    if (authenticatorSelectionAuthenticatorAttachment) {
+      if (!options.authenticatorSelection) options.authenticatorSelection = {};
+      options.authenticatorSelection.authenticatorAttachment = authenticatorSelectionAuthenticatorAttachment;
+    }
+    const authenticatorSelectionResidentKey = document.getElementById('authenticator-selection-resident-key').value.trim();
+    if (authenticatorSelectionResidentKey) {
+      if (!options.authenticatorSelection) options.authenticatorSelection = {};
+      options.authenticatorSelection.residentKey = authenticatorSelectionResidentKey;
+    }
+    const authenticatorSelectionUserVerification = document.getElementById('authenticator-selection-user-verification').value.trim();
+    if (authenticatorSelectionUserVerification) {
+      if (!options.authenticatorSelection) options.authenticatorSelection = {};
+      options.authenticatorSelection.userVerification = authenticatorSelectionUserVerification;
+    }
+
+    // TODO: Extensionsについてもまとめる
+    await register(email, options);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Authentication API Autofill Sign In</title>
+    <script src="webauthn.js"></script>
+</head>
+<body>
+<h1>Web Authentication API Autofill Sign In</h1>
+
+<a href="index.html">Back</a>
+<div>
+  <form id="sign-in">
+    <h2>Autofill Login</h2>
+    <input type="email" id="sign-in-email" name="sign-in-email" autocomplete="webauthn" />
+  </form>
+  <div id="assertion">
+      <h2>Autofill Sign In Result</h2>
+      <pre></pre>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      await conditionalMediationLogin();
+    } catch (err) {
+      console.error("Auto login check failed", err);
+    }
+  });
+</script>
+</body>
+</html>
